@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Самокат Рядом — прокат электросамокатов в Московском районе (учебное демо)</title>
+  <meta name="description" content="Учебное демо проката электросамокатов в Московском районе Санкт-Петербурга: схема района, фильтры, тарифы, расчёт стоимости и резерв прямо в браузере.">
+  <meta name="theme-color" content="#17362a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%B4%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // ES modules do not load from file://, so show a hint when the page is opened as a file.
+    if (location.protocol === "file:") document.documentElement.classList.add("is-file");
+  </script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к основному содержимому</a>
+
+  <div class="demo-banner" role="note">
+    <div class="container demo-banner__inner">
+      <span class="demo-banner__icon" aria-hidden="true">🎓</span>
+      <p><strong>Учебное демо:</strong> резервы сохраняются только в этом браузере. Реального запуска самоката и оплаты нет.</p>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <div class="brand">
+        <svg class="brand__logo" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+          <rect width="40" height="40" rx="11" fill="#ece3cf"/>
+          <g fill="none" stroke="#17362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 9h6"/>
+            <path d="M24.5 9 28 29"/>
+            <path d="M10 25.5h17.4"/>
+            <circle cx="11" cy="29" r="3.5"/>
+            <circle cx="28" cy="29" r="3.5"/>
+          </g>
+        </svg>
+        <div>
+          <h1 class="brand__name">Самокат Рядом</h1>
+          <p class="brand__tagline">Прокат электросамокатов · Московский район, Санкт-Петербург</p>
+        </div>
+      </div>
+      <nav class="site-nav" aria-label="Разделы страницы">
+        <ul role="list">
+          <li><a href="#scooters">Самокаты</a></li>
+          <li><a href="#reserve">Резерв</a></li>
+          <li><a href="#bookings">Мои резервы</a></li>
+          <li><a href="#tariffs">Тарифы</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <p class="boot-warning file-warning">Страница открыта как файл, а JavaScript-модули так не загружаются. Запустите в папке сайта <code>python -m http.server</code> и откройте <code>http://localhost:8000</code>.</p>
+    <noscript><p class="boot-warning">Для работы демо нужен включённый JavaScript.</p></noscript>
+  </div>
+
+  <main id="main" class="container layout" tabindex="-1">
+    <section id="scooters" class="panel scooters" aria-labelledby="scooters-title">
+      <div class="panel__head">
+        <h2 id="scooters-title">Самокаты рядом</h2>
+        <p id="scooters-count" class="panel__meta" aria-live="polite"></p>
+      </div>
+
+      <div class="filters" role="group" aria-label="Фильтры: применяются к схеме и к списку">
+        <div class="field">
+          <label for="filter-battery">Минимальный заряд</label>
+          <select id="filter-battery" autocomplete="off">
+            <option value="0">Любой</option>
+            <option value="30">≥30%</option>
+            <option value="50">≥50%</option>
+            <option value="80">≥80%</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="filter-tariff">Тариф</label>
+          <select id="filter-tariff" autocomplete="off"></select>
+        </div>
+        <button type="button" id="filters-reset" class="btn btn--ghost">Сбросить фильтры</button>
+      </div>
+
+      <h3 class="subhead">Схема района</h3>
+      <p class="visually-hidden">Условная схема Московского района: Московский проспект, улицы, сквер, парк и остановка. Самокаты на схеме — кнопки.</p>
+      <div class="map" id="map">
+        <svg class="map__bg" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+          <rect class="m-ground" width="160" height="100"/>
+          <g class="m-blocks">
+            <rect x="4" y="14" width="17" height="9" rx="1.5"/>
+            <rect x="24" y="14" width="16" height="9" rx="1.5"/>
+            <rect x="4" y="26" width="36" height="7" rx="1.5"/>
+            <rect x="54" y="13" width="12" height="9" rx="1.5"/>
+            <rect x="70" y="4" width="12" height="14" rx="1.5"/>
+            <rect x="54" y="25" width="28" height="8" rx="1.5"/>
+            <rect x="100" y="4" width="16" height="13" rx="1.5"/>
+            <rect x="100" y="21" width="16" height="12" rx="1.5"/>
+            <rect x="128" y="4" width="18" height="12" rx="1.5"/>
+            <rect x="128" y="20" width="12" height="13" rx="1.5"/>
+            <rect x="144" y="20" width="12" height="13" rx="1.5"/>
+            <rect x="4" y="45" width="17" height="17" rx="1.5"/>
+            <rect x="25" y="45" width="15" height="17" rx="1.5"/>
+            <rect x="52" y="45" width="30" height="8" rx="1.5"/>
+            <rect x="52" y="56" width="13" height="7" rx="1.5"/>
+            <rect x="69" y="56" width="13" height="7" rx="1.5"/>
+            <rect x="126" y="43" width="30" height="4" rx="1.2"/>
+            <rect x="52" y="74" width="14" height="10" rx="1.5"/>
+            <rect x="70" y="74" width="12" height="10" rx="1.5"/>
+            <rect x="52" y="88" width="30" height="8" rx="1.5"/>
+            <rect x="99" y="73" width="11" height="10" rx="1.5"/>
+            <rect x="99" y="87" width="11" height="9" rx="1.5"/>
+          </g>
+
+          <rect class="m-square" x="4" y="74" width="36" height="22" rx="3"/>
+          <path class="m-path" d="M6 86C16 80 28 86 39 77"/>
+          <g class="m-trees">
+            <circle cx="10" cy="79.5" r="2.4"/>
+            <circle cx="17" cy="78" r="2"/>
+            <circle cx="31" cy="84" r="2.4"/>
+            <circle cx="36" cy="91" r="2"/>
+            <circle cx="28" cy="92" r="2.2"/>
+          </g>
+
+          <rect class="m-park" x="114" y="50" width="46" height="50" rx="4"/>
+          <path class="m-path" d="M116 66C128 60 138 70 158 62"/>
+          <ellipse class="m-water" cx="146" cy="88" rx="9" ry="4.8"/>
+          <g class="m-trees">
+            <circle cx="119" cy="56" r="2.6"/>
+            <circle cx="127" cy="55" r="2.2"/>
+            <circle cx="139" cy="57" r="2.6"/>
+            <circle cx="152" cy="55" r="2.4"/>
+            <circle cx="156" cy="73" r="2.2"/>
+            <circle cx="119" cy="80" r="2.4"/>
+            <circle cx="135" cy="95" r="2"/>
+            <circle cx="157" cy="96" r="1.8"/>
+          </g>
+
+          <g class="m-roads">
+            <rect x="0" y="36" width="160" height="5"/>
+            <rect x="0" y="66" width="112" height="4"/>
+            <rect x="44" y="0" width="4" height="100"/>
+            <rect x="120" y="0" width="4" height="50"/>
+            <rect x="86" y="0" width="10" height="100"/>
+          </g>
+          <path class="m-lane" d="M91 0V100"/>
+          <path class="m-lane" d="M0 38.5H86M96 38.5H160"/>
+
+          <g class="m-stop">
+            <rect class="m-stop__sign" x="98" y="49.5" width="7" height="6" rx="1.4"/>
+            <rect class="m-stop__bus" x="99.4" y="50.9" width="4.2" height="2.6" rx=".6"/>
+            <circle class="m-stop__bus" cx="100.4" cy="54.2" r=".6"/>
+            <circle class="m-stop__bus" cx="102.6" cy="54.2" r=".6"/>
+          </g>
+
+          <text class="m-label m-label--title" x="4" y="9.5">Московский район</text>
+          <text class="m-label" x="7" y="94">Сквер</text>
+          <text class="m-label" x="117" y="96">Парк</text>
+          <text class="m-label" x="98" y="62.5">Остановка</text>
+          <text class="m-label m-label--street" transform="translate(95 22) rotate(-90)" text-anchor="middle">Московский пр.</text>
+          <g class="m-north" transform="translate(153 3.5)">
+            <path d="M0 0 2.6 6.2H-2.6Z"/>
+            <text class="m-label m-label--north" x="0" y="11" text-anchor="middle">С</text>
+          </g>
+        </svg>
+        <div class="map__pins" id="map-pins" role="group" aria-label="Самокаты на схеме"></div>
+        <p class="map__empty" id="map-empty" hidden>Ничего не найдено. Измените фильтры.</p>
+      </div>
+
+      <ul class="legend" role="list" aria-label="Легенда схемы">
+        <li><span class="swatch st-free" aria-hidden="true"></span>Свободен</li>
+        <li><span class="swatch st-selected" aria-hidden="true">✓</span>Выбран</li>
+        <li><span class="swatch st-busy" aria-hidden="true">×</span>Занят</li>
+        <li><span class="swatch st-low" aria-hidden="true">!</span>Низкий заряд</li>
+      </ul>
+      <p class="hint">Схема условная. Нажмите на самокат на схеме или кнопку «Выбрать» в списке; с клавиатуры — Tab и Enter.</p>
+
+      <h3 class="subhead">Список самокатов</h3>
+      <p id="list-empty" class="empty" hidden>Ничего не найдено. Измените фильтры.</p>
+      <ul id="scooter-list" class="scooter-list" role="list"></ul>
+    </section>
+
+    <div class="side">
+      <section id="reserve" class="panel reserve" aria-labelledby="reserve-title">
+        <h2 id="reserve-title">Резерв</h2>
+
+        <div id="reserve-success" class="notice notice--success" tabindex="-1" hidden></div>
+
+        <div id="reserve-empty" class="empty-state">
+          <span class="empty-state__icon" aria-hidden="true">🛴</span>
+          <p class="empty-state__title">Сначала выберите самокат</p>
+          <p class="empty-state__text">Нажмите на самокат на схеме или кнопку «Выбрать» в списке — здесь появятся карточка и форма резерва.</p>
+          <a class="btn btn--ghost btn--small" href="#scooters">К схеме и списку</a>
+        </div>
+
+        <article id="scooter-card" class="card" aria-labelledby="card-title" hidden>
+          <div class="card__head">
+            <span class="card__icon" aria-hidden="true">🛴</span>
+            <div class="card__titles">
+              <h3 id="card-title" class="card__title" tabindex="-1"></h3>
+              <p id="card-model" class="card__model"></p>
+            </div>
+            <span id="card-status" class="badge"></span>
+          </div>
+          <p id="card-desc" class="card__desc"></p>
+          <dl class="facts">
+            <div><dt>Заряд</dt><dd id="card-battery"></dd></div>
+            <div><dt>Цена</dt><dd id="card-price"></dd></div>
+          </dl>
+          <p id="card-warning" class="warning" hidden><span aria-hidden="true">⚠</span> Низкий заряд — хватит ненадолго</p>
+
+          <form id="reserve-form" class="reserve-form" aria-label="Форма резерва" novalidate autocomplete="off">
+            <fieldset class="offers" aria-describedby="offers-lead">
+              <legend class="offers__title">Тариф</legend>
+              <p id="offers-lead" class="offers__lead">Чем больше пакет — тем ниже стоимость минуты. Время поездки заранее не выбирается: аренду вы завершаете сами.</p>
+              <div id="offer-list" class="offer-list"></div>
+            </fieldset>
+
+            <label class="plus" for="subscription">
+              <span class="plus__icon" aria-hidden="true">✦</span>
+              <span class="plus__text">
+                <span class="plus__title">У меня подписка Плюс</span>
+                <span class="plus__sub">−15%, старт бесплатно · в демо 0 ₽</span>
+              </span>
+              <input id="subscription" name="subscription" type="checkbox" role="switch" class="switch">
+            </label>
+
+            <section class="price" aria-labelledby="price-title">
+              <h4 id="price-title" class="price__title">Расчёт</h4>
+              <dl id="price-breakdown" class="price__rows"></dl>
+              <p class="price__total"><span>К оплате при старте</span><output id="price-total">—</output></p>
+              <p id="price-note" class="price__note"></p>
+            </section>
+
+            <button type="submit" id="confirm-btn" class="btn btn--primary btn--block btn--cta">
+              <span>Подтвердить резерв</span>
+              <span id="confirm-sub" class="btn__sub"></span>
+            </button>
+          </form>
+        </article>
+      </section>
+
+      <section id="bookings" class="panel bookings" aria-labelledby="bookings-title">
+        <div class="panel__head">
+          <h2 id="bookings-title" tabindex="-1">Мои резервы</h2>
+          <p id="bookings-count" class="panel__meta"></p>
+        </div>
+
+        <div id="storage-alert" class="notice notice--error" hidden>
+          <p id="storage-alert-text"></p>
+          <button type="button" id="storage-alert-close" class="btn btn--ghost btn--small">Понятно</button>
+        </div>
+
+        <p id="bookings-empty" class="empty">У вас пока нет резервов.</p>
+        <ul id="booking-list" class="booking-list" role="list"></ul>
+        <button type="button" id="bookings-clear" class="btn btn--danger btn--block" hidden>Очистить мои резервы</button>
+        <p class="hint bookings__hint">Здесь только ваши резервы из этого браузера. Самокаты, занятые другими пользователями, отменить нельзя.</p>
+      </section>
+    </div>
+
+    <section id="tariffs" class="panel tariffs" aria-labelledby="tariffs-title">
+      <h2 id="tariffs-title">Тарифы</h2>
+      <div id="tariff-grid" class="tariff-grid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>«Самокат Рядом» — учебный проект. Самокаты, цены и места на схеме вымышлены; сайт не связан с реальными сервисами проката.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
